@@ -1,156 +1,367 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Be My Valentine 💘</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Be My Valentine 💘</title>
 
-<style>
-body{
-  margin:0;
-  font-family: Arial, sans-serif;
-  background:#e6d5dc;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  overflow:hidden;
-}
+  <style>
+    :root { --bg: #e6d5dc; }
 
-/* LOCK SCREEN */
-.lock-screen{
-  position:fixed;
-  inset:0;
-  background:#e6d5dc;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:999;
-}
+    body{
+      margin:0;
+      background: var(--bg);
+      text-align:center;
+      font-family: Arial, sans-serif;
+      overflow:hidden;
+    }
 
-.lock-box{
-  background:white;
-  padding:40px;
-  border-radius:20px;
-  text-align:center;
-  box-shadow:0 10px 30px rgba(0,0,0,0.2);
-}
+    /* Main app container */
+    .container{
+      margin-top:70px;
+      position: relative;
+      z-index: 2;
+    }
 
-.lock-box input{
-  padding:12px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  margin-top:15px;
-  width:200px;
-  text-align:center;
-}
+    .card{
+      display:inline-block;
+      background: rgba(255,255,255,0.25);
+      padding: 40px;
+      border-radius: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      backdrop-filter: blur(6px);
+      max-width: 520px;
+    }
 
-.lock-box button{
-  margin-top:15px;
-  padding:10px 25px;
-  border:none;
-  border-radius:20px;
-  background:#ff4d6d;
-  color:white;
-  cursor:pointer;
-}
+    .main-photo{
+      width:320px;
+      max-width: 80vw;
+      border-radius:20px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.2);
+      margin-bottom:25px;
+    }
 
-.error{
-  color:red;
-  margin-top:10px;
-  display:none;
-}
+    h1{
+      color:#ff3b3b;
+      font-size:38px;
+      margin: 10px 0 20px;
+      line-height: 1.2;
+    }
 
-/* MAIN CONTENT */
-.container{
-  display:none;
-  text-align:center;
-}
+    .buttons{
+      margin-top:22px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:18px;
+      position: relative;
+      height: 120px;
+    }
 
-.card{
-  background: rgba(255,255,255,0.35);
-  padding:40px;
-  border-radius:25px;
-  backdrop-filter: blur(8px);
-  box-shadow:0 10px 30px rgba(0,0,0,0.2);
-  max-width:420px;
-}
+    button{
+      padding: 16px 34px;
+      font-size: 18px;
+      border-radius: 30px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.2s ease;
+      white-space: nowrap;
+      z-index: 3; /* keep above hearts */
+    }
 
-.main-photo{
-  width:250px;
-  border-radius:20px;
-  margin-bottom:20px;
-}
+    .yes{
+      background:#28c76f;
+      color:white;
+      transform-origin: center;
+    }
 
-h1{
-  color:#ff3b3b;
-}
+    .no{
+      background:#ff4d4d;
+      color:white;
+      position: absolute;     /* so it can move inside .buttons area */
+      left: 50%;
+      transform: translateX(90px); /* starts to the right of Yes */
+      top: 0;
+    }
 
-.buttons{
-  display:flex;
-  justify-content:center;
-  gap:20px;
-  margin-top:20px;
-}
+    /* Floating hearts */
+    .heart {
+      position: absolute;
+      bottom: -30px;
+      font-size: 20px;
+      animation: floatUp linear forwards;
+      z-index: 1;
+      user-select: none;
+      pointer-events: none;
+      opacity: 0.95;
+    }
 
-button{
-  padding:14px 30px;
-  border:none;
-  border-radius:25px;
-  cursor:pointer;
-  font-weight:bold;
-}
+    @keyframes floatUp {
+      from { transform: translateY(0) translateX(0) scale(1); opacity: 1; }
+      to   { transform: translateY(-110vh) translateX(var(--drift)) scale(var(--scale)); opacity: 0; }
+    }
 
-.yes{
-  background:#28c76f;
-  color:white;
-}
-
-.no{
-  background:#ff4d4d;
-  color:white;
-}
-</style>
+    /* PASSWORD OVERLAY */
+    .lock-screen{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+    .lock-card{
+      width: min(420px, 92vw);
+      background: rgba(255,255,255,0.88);
+      border-radius: 18px;
+      padding: 22px 18px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+      backdrop-filter: blur(8px);
+      text-align: center;
+    }
+    .lock-card h2{
+      margin: 0 0 10px;
+      color: #c2185b;
+      font-size: 22px;
+    }
+    .lock-card p{
+      margin: 0 0 14px;
+      color: #333;
+      opacity: 0.9;
+      font-size: 14px;
+    }
+    .lock-input{
+      width: 90%;
+      max-width: 320px;
+      font-size: 16px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.15);
+      outline: none;
+    }
+    .lock-actions{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
+      justify-content:center;
+    }
+    .lock-btn{
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .unlock{
+      background:#28c76f;
+      color:#fff;
+    }
+    .reset{
+      background:#ddd;
+      color:#333;
+    }
+    .error{
+      margin-top: 10px;
+      color: #b00020;
+      font-size: 13px;
+      min-height: 18px;
+    }
+    .shake{
+      animation: shake 0.25s linear 2;
+    }
+    @keyframes shake{
+      0%{ transform: translateX(0); }
+      25%{ transform: translateX(-8px); }
+      50%{ transform: translateX(8px); }
+      75%{ transform: translateX(-6px); }
+      100%{ transform: translateX(0); }
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- LOCK SCREEN -->
-<div class="lock-screen" id="lockScreen">
-  <div class="lock-box">
-    <h2>Enter the secret password my baby 💌</h2>
-    <input type="password" id="passwordInput" placeholder="Password">
-    <br>
-    <button onclick="checkPassword()">Unlock</button>
-    <div class="error" id="errorText">Try again 💔</div>
+<!-- PASSWORD OVERLAY -->
+<div class="lock-screen" id="lockScreen" aria-hidden="false">
+  <div class="lock-card" id="lockCard">
+    <h2>🔒 Secret Password</h2>
+    <p>Enter the password to open the page</p>
+    <input class="lock-input" id="pwInput" type="password" placeholder="Password..." autocomplete="off" />
+    <div class="lock-actions">
+      <button class="lock-btn unlock" id="unlockBtn">Unlock</button>
+      <button class="lock-btn reset" id="resetBtn" title="For testing: forget password on this browser">Reset</button>
+    </div>
+    <div class="error" id="pwError"></div>
   </div>
 </div>
 
-<!-- MAIN PAGE -->
-<div class="container" id="mainContent">
+<!-- MAIN APP -->
+<div class="container" id="app" style="visibility:hidden;">
   <div class="card">
-    <img src="https://i.imgur.com/8n0hZE9.jpeg" class="main-photo">
-    <h1>Ayah please do me the honor of being my valentine</h1>
-    <div class="buttons">
-      <button class="yes">Yes</button>
-      <button class="no">No</button>
+    <img id="askImg" class="main-photo" alt="our photo">
+    <h1>Ayah please do me<br>the honor of being<br>my valentine</h1>
+
+    <div class="buttons" id="btnArea">
+      <button class="yes" id="yesBtn">Yes</button>
+      <button class="no" id="noBtn">No</button>
     </div>
   </div>
 </div>
 
 <script>
-const SECRET = "idothatforyou"; // 🔐 CHANGE THIS
+  /* ====== CONFIG ====== */
+  const PASSWORD = "idothatforyou"; // <-- CHANGE THIS
+  const ASK_IMAGE = "https://i.imgur.com/8n0hZE9.jpeg";
+  const YAY_IMAGE = "https://i.imgur.com/S5Im067.jpeg";
 
-function checkPassword(){
-  const input = document.getElementById("passwordInput").value;
-  const error = document.getElementById("errorText");
+  const noPhrases = [
+    "Are you sure?",
+    "Really sure?",
+    "Think again!",
+    "Last chance!",
+    "Baby pleaseeee",
+    "You might regret this!",
+    "Give it another thought :(",
+    "Are you absolutely certain?",
+    "This could be a mistake!",
+    "Have a heart!",
+    "Don't be so cold!",
+    "Change of heart?",
+    "Wouldn't you reconsider?",
+    "Is that your final answer?",
+    "You're breaking my heart ;("
+  ];
 
-  if(input === SECRET){
-    document.getElementById("lockScreen").style.display = "none";
-    document.getElementById("mainContent").style.display = "block";
-  } else {
-    error.style.display = "block";
+  /* ====== PASSWORD LOGIC ====== */
+  const lockScreen = document.getElementById("lockScreen");
+  const lockCard = document.getElementById("lockCard");
+  const pwInput = document.getElementById("pwInput");
+  const pwError = document.getElementById("pwError");
+  const unlockBtn = document.getElementById("unlockBtn");
+  const resetBtn = document.getElementById("resetBtn");
+
+  function unlockApp(){
+    lockScreen.style.display = "none";
+    document.getElementById("app").style.visibility = "visible";
+    startHearts();
   }
-}
+
+  function checkPassword(){
+    pwError.textContent = "";
+    if (pwInput.value === PASSWORD){
+      localStorage.setItem("valentine_unlocked", "yes");
+      unlockApp();
+    } else {
+      pwError.textContent = "Wrong password 🙃";
+      lockCard.classList.remove("shake");
+      void lockCard.offsetWidth;
+      lockCard.classList.add("shake");
+    }
+  }
+
+  unlockBtn.addEventListener("click", checkPassword);
+  pwInput.addEventListener("keydown", (e)=>{ if(e.key === "Enter") checkPassword(); });
+
+  resetBtn.addEventListener("click", ()=>{
+    localStorage.removeItem("valentine_unlocked");
+    pwError.textContent = "Reset done. Refresh the page.";
+  });
+
+  // Auto-unlock if already unlocked on this device
+  if (localStorage.getItem("valentine_unlocked") === "yes"){
+    unlockApp();
+  } else {
+    // keep app hidden until unlocked
+    document.getElementById("app").style.visibility = "hidden";
+    setTimeout(()=> pwInput.focus(), 200);
+  }
+
+  /* ====== MAIN APP LOGIC ====== */
+  document.getElementById("askImg").src = ASK_IMAGE;
+
+  const yesBtn = document.getElementById("yesBtn");
+  const noBtn = document.getElementById("noBtn");
+  const btnArea = document.getElementById("btnArea");
+
+  let phraseIndex = 0;
+  let yesScale = 1;
+
+  yesBtn.addEventListener("click", ()=>{
+    document.body.innerHTML = `
+      <div style="margin-top:60px; text-align:center;">
+        <div style="display:inline-block; background: rgba(255,255,255,0.25); padding: 40px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); backdrop-filter: blur(6px);">
+          <img src="${YAY_IMAGE}" style="width:350px; max-width:85vw; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.2); margin-bottom:25px;">
+          <h1 style="color:#ff3b3b; font-size:60px;">Yay!!!</h1>
+          <p style="font-size:26px; margin-top:15px; color:#c2185b;">
+            I love you and I can't wait to celebrate it when I see you &lt;3
+          </p>
+        </div>
+      </div>
+    `;
+    // restart hearts after replacing DOM
+    startHearts();
+  });
+
+  noBtn.addEventListener("click", ()=>{
+    phraseIndex = (phraseIndex + 1) % noPhrases.length;
+    noBtn.textContent = noPhrases[phraseIndex];
+
+    yesScale = Math.min(yesScale + 0.15, 3.2);
+    yesBtn.style.transform = `scale(${yesScale})`;
+
+    moveNoButton();
+  });
+
+  function moveNoButton(){
+    // Random position inside the button area
+    const areaRect = btnArea.getBoundingClientRect();
+    const noRect = noBtn.getBoundingClientRect();
+
+    const padding = 6;
+
+    const maxX = areaRect.width - noRect.width - padding;
+    const maxY = areaRect.height - noRect.height - padding;
+
+    const x = padding + Math.random() * Math.max(0, maxX);
+    const y = padding + Math.random() * Math.max(0, maxY);
+
+    // Because .no is absolute inside .buttons
+    noBtn.style.left = x + "px";
+    noBtn.style.top  = y + "px";
+    noBtn.style.transform = "none";
+  }
+
+  /* ====== HEARTS ====== */
+  let heartTimer = null;
+
+  function createHeart(){
+    const heart = document.createElement("div");
+    heart.className = "heart";
+
+    const hearts = ["💗","💖","💕","💘","💝","💞"];
+    heart.textContent = hearts[Math.floor(Math.random()*hearts.length)];
+
+    heart.style.left = Math.random() * 100 + "vw";
+
+    const duration = 5 + Math.random() * 4;
+    heart.style.animationDuration = duration + "s";
+
+    const drift = (Math.random() * 220 - 110) + "px";
+    const scale = (0.6 + Math.random() * 1.2).toFixed(2);
+    heart.style.setProperty("--drift", drift);
+    heart.style.setProperty("--scale", scale);
+
+    document.body.appendChild(heart);
+    setTimeout(()=> heart.remove(), duration * 1000);
+  }
+
+  function startHearts(){
+    if (heartTimer) return;
+    heartTimer = setInterval(createHeart, 250);
+  }
 </script>
 
 </body>
