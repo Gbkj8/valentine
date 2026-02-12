@@ -1,238 +1,432 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Be My Valentine 💘</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Be My Valentine 💘</title>
 
-<style>
-:root{
-  --bg:#e6d5dc;
-}
+  <style>
+    :root{
+      --bg:#e6d5dc;
+      --card:rgba(255,255,255,0.25);
+      --shadow:rgba(0,0,0,0.15);
+      --yes:#28c76f;
+      --no:#ff4d4d;
+      --red:#ff3b3b;
+    }
 
-body{
-  margin:0;
-  background:var(--bg);
-  font-family:Arial, sans-serif;
-  overflow-x:hidden;
-  overflow-y:auto;
-}
+    body{
+      margin:0;
+      background:var(--bg);
+      font-family: Arial, sans-serif;
+      overflow:hidden;
+      min-height:100vh;
+    }
 
-/* LOCK SCREEN */
-.lock-screen{
-  position:fixed;
-  inset:0;
-  background:var(--bg);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:1000;
-}
+    /* Password overlay */
+    .lockScreen{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(0,0,0,0.35);
+      z-index:9999;
+      padding:20px;
+    }
+    .lockCard{
+      width:min(520px, 92vw);
+      background:rgba(255,255,255,0.85);
+      border-radius:22px;
+      box-shadow:0 18px 45px rgba(0,0,0,0.25);
+      padding:22px 22px 18px;
+      text-align:center;
+      backdrop-filter: blur(6px);
+    }
+    .lockTitle{
+      font-size:22px;
+      font-weight:800;
+      margin:0 0 10px;
+      color:#222;
+    }
+    .lockHint{
+      margin:0 0 14px;
+      color:#444;
+      font-size:14px;
+    }
+    .lockRow{
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .lockInput{
+      width:min(320px, 80vw);
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid rgba(0,0,0,0.15);
+      font-size:16px;
+      outline:none;
+    }
+    .lockBtn{
+      padding:12px 16px;
+      border-radius:12px;
+      border:none;
+      background:#111;
+      color:#fff;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .lockError{
+      margin:12px 0 0;
+      color:#b00020;
+      font-size:14px;
+      min-height:18px;
+    }
 
-.lock-box{
-  background:white;
-  padding:40px;
-  border-radius:20px;
-  text-align:center;
-  box-shadow:0 10px 30px rgba(0,0,0,0.2);
-}
+    /* Main content */
+    .container{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:32px 16px;
+      position:relative;
+      z-index:2;
+    }
 
-.lock-box input{
-  padding:12px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  margin-top:15px;
-  width:200px;
-  text-align:center;
-}
+    .card{
+      width:min(520px, 92vw);
+      background: var(--card);
+      padding: 34px 26px 28px;
+      border-radius: 28px;
+      box-shadow: 0 10px 30px var(--shadow);
+      backdrop-filter: blur(8px);
+      text-align:center;
+      position:relative;
+    }
 
-.lock-box button{
-  margin-top:15px;
-  padding:10px 25px;
-  border:none;
-  border-radius:20px;
-  background:#ff4d6d;
-  color:white;
-  cursor:pointer;
-}
+    .main-photo{
+      width:320px;
+      max-width: 80vw;
+      border-radius:20px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.2);
+      margin-bottom:18px;
+      display:block;
+      margin-left:auto;
+      margin-right:auto;
+    }
 
-.error{
-  color:red;
-  margin-top:10px;
-  display:none;
-}
+    h1{
+      color:var(--red);
+      font-size:34px;
+      margin: 10px 0 18px;
+      line-height: 1.2;
+      font-weight:800;
+    }
 
-/* MAIN CONTENT */
-.container{
-  min-height:100vh;
-  display:none;
-  justify-content:center;
-  align-items:center;
-  padding:20px;
-}
+    .buttons{
+      margin-top:18px;
+      position:relative;
+      width: min(420px, 90%);
+      height: 110px;       /* space for the No button to move up/down */
+      margin-left:auto;
+      margin-right:auto;
+    }
 
-.card{
-  background: rgba(255,255,255,0.25);
-  padding:40px;
-  border-radius:25px;
-  backdrop-filter: blur(6px);
-  box-shadow:0 10px 30px rgba(0,0,0,0.15);
-  width:100%;
-  max-width:500px;
-  position:relative;
-  text-align:center;
-}
+    .yes{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-115px, -50%); /* centered pair */
+      background:var(--yes);
+      color:white;
+      border:none;
+      border-radius:999px;
+      padding:16px 34px;
+      font-size:18px;
+      font-weight:800;
+      cursor:pointer;
+      transition: transform 0.2s ease;
+      z-index:2;
+    }
 
-.main-photo{
-  width:320px;
-  max-width:80vw;
-  max-height:45vh;
-  object-fit:contain;
-  border-radius:20px;
-  margin-bottom:25px;
-}
+    .no{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(15px, -50%); /* centered pair */
+      background:var(--no);
+      color:white;
+      border:none;
+      border-radius:999px;
+      padding:16px 34px;
+      font-size:18px;
+      font-weight:800;
+      cursor:pointer;
+      transition: 0.15s ease;
+      z-index:3;
+      white-space:nowrap;
+    }
 
-h1{
-  color:#ff3b3b;
-}
+    /* Floating hearts */
+    .heart {
+      position: fixed;
+      bottom: -30px;
+      font-size: 20px;
+      animation: floatUp linear forwards;
+      z-index: 1;
+      user-select: none;
+      pointer-events: none;
+      opacity: 0.95;
+    }
+    @keyframes floatUp {
+      from { transform: translateY(0) translateX(0) scale(1); opacity: 1; }
+      to   { transform: translateY(-110vh) translateX(var(--drift)) scale(var(--scale)); opacity: 0; }
+    }
 
-.buttons{
-  position:relative;
-  height:100px;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:20px;
-}
-
-button{
-  padding:14px 30px;
-  font-size:18px;
-  border:none;
-  border-radius:30px;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-.yes{
-  background:#28c76f;
-  color:white;
-}
-
-.no{
-  background:#ff4d4d;
-  color:white;
-  position:absolute;
-}
-
-/* Floating hearts */
-.heart{
-  position:absolute;
-  bottom:-30px;
-  font-size:20px;
-  animation: floatUp linear forwards;
-  pointer-events:none;
-  z-index:-1;
-}
-
-@keyframes floatUp{
-  from{transform:translateY(0);opacity:1;}
-  to{transform:translateY(-110vh) translateX(var(--drift));opacity:0;}
-}
-</style>
+    /* Yay page */
+    .yayWrap{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:32px 16px;
+      text-align:center;
+    }
+    .yayCard{
+      width:min(520px, 92vw);
+      background: rgba(255,255,255,0.25);
+      padding: 34px 26px 28px;
+      border-radius: 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      backdrop-filter: blur(8px);
+    }
+    .yayImg{
+      width:350px;
+      max-width:85vw;
+      border-radius:20px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.2);
+      margin-bottom:18px;
+      display:block;
+      margin-left:auto;
+      margin-right:auto;
+    }
+    .yayTitle{
+      color:var(--red);
+      font-size:60px;
+      margin: 10px 0 10px;
+      font-weight:900;
+    }
+    .yayText{
+      font-size:24px;
+      margin-top:10px;
+      color:#c2185b;
+      font-weight:700;
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- PASSWORD SCREEN -->
-<div class="lock-screen" id="lockScreen">
-  <div class="lock-box">
-    <h2>Enter the secret password baby 💌</h2>
-    <input type="password" id="passwordInput" placeholder="Password">
-    <br>
-    <button onclick="checkPassword()">Unlock</button>
-    <div class="error" id="errorText">Wrong password,try again 💔</div>
-  </div>
-</div>
+  <!-- Password Gate -->
+  <div class="lockScreen" id="lockScreen">
+    <div class="lockCard">
+      <p class="lockTitle">Enter the secret password baby💌</p>
+      <p class="lockHint">Hint: i love you</p>
 
-<!-- MAIN CONTENT -->
-<div class="container" id="mainContent">
-  <div class="card">
-    <img src="https://i.imgur.com/8n0hZE9.jpeg" class="main-photo">
-    <h1>Ayah please do me the honor of being my valentine</h1>
+      <div class="lockRow">
+        <input class="lockInput" id="pwInput" type="password" placeholder="Password..." autocomplete="off" />
+        <button class="lockBtn" id="pwBtn">Unlock</button>
+      </div>
 
-    <div class="buttons" id="btnArea">
-      <button class="yes" id="yesBtn">Yes</button>
-      <button class="no" id="noBtn">No</button>
+      <p class="lockError" id="pwError"></p>
     </div>
   </div>
-</div>
 
-<script>
-/* 🔐 CHANGE YOUR PASSWORD HERE */
-const SECRET = "idothatforyou";
+  <!-- Main App -->
+  <div class="container" id="app" style="display:none;">
+    <div class="card" id="card">
+      <img id="askImg" class="main-photo" alt="our photo" />
+      <h1>Ayah please do me<br>the honor of being<br>my valentine</h1>
 
-/* PASSWORD CHECK */
-function checkPassword(){
-  const input = document.getElementById("passwordInput").value;
-  const error = document.getElementById("errorText");
-
-  if(input === SECRET){
-    document.getElementById("lockScreen").style.display = "none";
-    document.getElementById("mainContent").style.display = "flex";
-  } else {
-    error.style.display = "block";
-  }
-}
-
-/* YES / NO LOGIC */
-const noBtn = document.getElementById("noBtn");
-const yesBtn = document.getElementById("yesBtn");
-const btnArea = document.getElementById("btnArea");
-
-let yesScale = 1;
-
-yesBtn.onclick = function(){
-  document.body.innerHTML = `
-    <div style="min-height:100vh;display:flex;justify-content:center;align-items:center;text-align:center;">
-      <div style="background:rgba(255,255,255,0.25);padding:40px;border-radius:25px;box-shadow:0 10px 30px rgba(0,0,0,0.15);backdrop-filter:blur(6px);max-width:500px;">
-        <h1 style="color:#ff3b3b;font-size:50px;">Yay!!! ❤️</h1>
-        <p style="font-size:22px;color:#c2185b;">
-          I love you and I can't wait to celebrate it when I see you 💕
-        </p>
+      <div class="buttons" id="btnArea">
+        <button class="yes" id="yesBtn">Yes</button>
+        <button class="no" id="noBtn">No</button>
       </div>
     </div>
-  `;
-}
+  </div>
 
-noBtn.onclick = function(){
-  yesScale += 0.1;
-  yesBtn.style.transform = "scale(" + yesScale + ")";
-  moveNoButton();
-}
+<script>
+  // ✅ Put your password here:
+  const SECRET_PASSWORD = "idothatforyou"; // <-- change this
 
-function moveNoButton(){
-  const areaRect = btnArea.getBoundingClientRect();
-  const maxX = areaRect.width - noBtn.offsetWidth;
-  const maxY = areaRect.height - noBtn.offsetHeight;
-  const x = Math.random() * maxX;
-  const y = Math.random() * maxY;
-  noBtn.style.left = x + "px";
-  noBtn.style.top = y + "px";
-}
+  // ✅ Your images:
+  const ASK_IMAGE = "https://i.imgur.com/8n0hZE9.jpeg";
+  const YAY_IMAGE = "https://i.imgur.com/S5Im067.jpeg";
 
-/* Floating hearts */
-function createHeart(){
-  const heart = document.createElement("div");
-  heart.className = "heart";
-  heart.textContent = "💖";
-  heart.style.left = Math.random()*100+"vw";
-  const drift = (Math.random()*200-100)+"px";
-  heart.style.setProperty("--drift", drift);
-  document.body.appendChild(heart);
-  setTimeout(()=>heart.remove(),6000);
-}
-setInterval(createHeart,300);
+  // ✅ No button phrases:
+  const noPhrases = [
+    "Are you sure?",
+    "Really sure?",
+    "Think again!",
+    "Last chance!",
+    "Baby pleaseeee",
+    "You might regret this!",
+    "Give it another thought :(",
+    "Are you absolutely certain?",
+    "This could be a mistake!",
+    "Have a heart!",
+    "Don't be so cold!",
+    "Change of heart?",
+    "Wouldn't you reconsider?",
+    "Is that your final answer?",
+    "You're breaking my heart ;("
+  ];
+
+  // Elements
+  const lockScreen = document.getElementById("lockScreen");
+  const pwInput = document.getElementById("pwInput");
+  const pwBtn = document.getElementById("pwBtn");
+  const pwError = document.getElementById("pwError");
+
+  const app = document.getElementById("app");
+  const askImg = document.getElementById("askImg");
+  const card = document.getElementById("card");
+  const btnArea = document.getElementById("btnArea");
+
+  const yesBtn = document.getElementById("yesBtn");
+  const noBtn  = document.getElementById("noBtn");
+
+  // Start: set image
+  askImg.src = ASK_IMAGE;
+
+  // Password unlock
+  function unlock() {
+    const entered = pwInput.value.trim();
+    if (entered === SECRET_PASSWORD) {
+      lockScreen.style.display = "none";
+      app.style.display = "flex";
+      startHearts();
+    } else {
+      pwError.textContent = "Wrong password, try again :(";
+      pwInput.value = "";
+      pwInput.focus();
+    }
+  }
+
+  pwBtn.addEventListener("click", unlock);
+  pwInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") unlock();
+  });
+
+  // Hearts (only after unlock)
+  let heartTimer = null;
+  function startHearts() {
+    if (heartTimer) return;
+    heartTimer = setInterval(createHeart, 250);
+  }
+
+  function createHeart(){
+    const heart = document.createElement("div");
+    heart.className = "heart";
+
+    const hearts = ["💗","💖","💕","💘","💝","💞"];
+    heart.textContent = hearts[Math.floor(Math.random()*hearts.length)];
+
+    heart.style.left = Math.random() * 100 + "vw";
+
+    const duration = 5 + Math.random() * 4;
+    heart.style.animationDuration = duration + "s";
+
+    const drift = (Math.random() * 260 - 130) + "px";
+    const scale = (0.6 + Math.random() * 1.2).toFixed(2);
+    heart.style.setProperty("--drift", drift);
+    heart.style.setProperty("--scale", scale);
+
+    document.body.appendChild(heart);
+    setTimeout(()=> heart.remove(), duration * 1000);
+  }
+
+  // YES page
+  yesBtn.addEventListener("click", () => {
+    document.body.innerHTML = `
+      <div class="yayWrap">
+        <div class="yayCard">
+          <img class="yayImg" src="${YAY_IMAGE}" alt="Yay photo">
+          <div class="yayTitle">Yay!!!</div>
+          <div class="yayText">I love you and I can't wait to celebrate it when I see you &lt;3</div>
+        </div>
+      </div>
+    `;
+  });
+
+  // NO behavior: grow yes + change text + random move
+  let phraseIndex = 0;
+  let yesScale = 1;
+
+  noBtn.addEventListener("click", () => {
+    // Grow YES (but keep centered)
+    yesScale += 0.12;
+    yesBtn.style.transform = `translate(-115px, -50%) scale(${yesScale})`;
+
+    // Change NO text
+    if (phraseIndex < noPhrases.length) {
+      noBtn.textContent = noPhrases[phraseIndex];
+      phraseIndex++;
+    } else {
+      noBtn.textContent = noPhrases[noPhrases.length - 1];
+    }
+
+    moveNoButtonMoreRandom();
+  });
+
+  // More random movement (up/down/side) inside the button area
+  function moveNoButtonMoreRandom(){
+    const areaRect = btnArea.getBoundingClientRect();
+
+    // Temporarily reset to measure width accurately even after text changes
+    noBtn.style.left = "50%";
+    noBtn.style.top  = "50%";
+    noBtn.style.transform = "translate(15px, -50%)";
+
+    // Measure
+    const btnW = noBtn.offsetWidth;
+    const btnH = noBtn.offsetHeight;
+
+    // Allow movement around center, including up/down and side
+    const padding = 10;
+    const minX = padding;
+    const maxX = Math.max(padding, areaRect.width - btnW - padding);
+    const minY = padding;
+    const maxY = Math.max(padding, areaRect.height - btnH - padding);
+
+    // Weighted randomness: mostly near center, sometimes wild
+    function randBetween(a,b){ return a + Math.random()*(b-a); }
+
+    let x, y;
+    if (Math.random() < 0.75) {
+      // near center cluster
+      const cx = areaRect.width * 0.5 - btnW * 0.5;
+      const cy = areaRect.height * 0.5 - btnH * 0.5;
+      x = cx + (Math.random()*160 - 80);
+      y = cy + (Math.random()*90  - 45);
+    } else {
+      // anywhere in area
+      x = randBetween(minX, maxX);
+      y = randBetween(minY, maxY);
+    }
+
+    // Clamp
+    x = Math.min(Math.max(x, minX), maxX);
+    y = Math.min(Math.max(y, minY), maxY);
+
+    // Apply absolute inside area
+    noBtn.style.left = x + "px";
+    noBtn.style.top  = y + "px";
+    noBtn.style.transform = "translate(0, 0)";
+  }
 </script>
 
 </body>
