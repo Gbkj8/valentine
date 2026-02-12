@@ -19,8 +19,12 @@
       margin:0;
       background:var(--bg);
       font-family: Arial, sans-serif;
-      overflow:hidden;
-      min-height:100vh;
+
+      /* ✅ FIX: don’t clip the bottom */
+      overflow-x:hidden;
+      overflow-y:auto;
+
+      min-height:100svh;
     }
 
     /* Password overlay */
@@ -87,11 +91,14 @@
 
     /* Main content */
     .container{
-      min-height:100vh;
+      min-height:100svh;
       display:flex;
       justify-content:center;
       align-items:center;
-      padding:32px 16px;
+
+      /* ✅ FIX: add bottom room so buttons are always visible */
+      padding:32px 16px calc(90px + env(safe-area-inset-bottom));
+
       position:relative;
       z-index:2;
     }
@@ -99,7 +106,7 @@
     .card{
       width:min(520px, 92vw);
       background: var(--card);
-      padding: 34px 26px 28px;
+      padding: 34px 26px calc(40px + env(safe-area-inset-bottom));
       border-radius: 28px;
       box-shadow: 0 10px 30px var(--shadow);
       backdrop-filter: blur(8px);
@@ -110,6 +117,12 @@
     .main-photo{
       width:320px;
       max-width: 80vw;
+
+      /* ✅ FIX: stop image from pushing buttons off-screen */
+      max-height:45vh;
+      height:auto;
+      object-fit:contain;
+
       border-radius:20px;
       box-shadow:0 10px 25px rgba(0,0,0,0.2);
       margin-bottom:18px;
@@ -130,7 +143,7 @@
       margin-top:18px;
       position:relative;
       width: min(420px, 90%);
-      height: 110px;       /* space for the No button to move up/down */
+      height: 130px;
       margin-left:auto;
       margin-right:auto;
     }
@@ -139,7 +152,7 @@
       position:absolute;
       left:50%;
       top:50%;
-      transform:translate(-115px, -50%); /* centered pair */
+      transform:translate(-115px, -50%);
       background:var(--yes);
       color:white;
       border:none;
@@ -156,7 +169,7 @@
       position:absolute;
       left:50%;
       top:50%;
-      transform:translate(15px, -50%); /* centered pair */
+      transform:translate(15px, -50%);
       background:var(--no);
       color:white;
       border:none;
@@ -188,7 +201,7 @@
 
     /* Yay page */
     .yayWrap{
-      min-height:100vh;
+      min-height:100svh;
       display:flex;
       justify-content:center;
       align-items:center;
@@ -259,14 +272,11 @@
   </div>
 
 <script>
-  // ✅ Put your password here:
-  const SECRET_PASSWORD = "idothatforyou"; // <-- change this
+  const SECRET_PASSWORD = "idothatforyou"; // <-- change this if you want
 
-  // ✅ Your images:
   const ASK_IMAGE = "https://i.imgur.com/8n0hZE9.jpeg";
   const YAY_IMAGE = "https://i.imgur.com/S5Im067.jpeg";
 
-  // ✅ No button phrases:
   const noPhrases = [
     "Are you sure?",
     "Really sure?",
@@ -285,7 +295,6 @@
     "You're breaking my heart ;("
   ];
 
-  // Elements
   const lockScreen = document.getElementById("lockScreen");
   const pwInput = document.getElementById("pwInput");
   const pwBtn = document.getElementById("pwBtn");
@@ -293,16 +302,13 @@
 
   const app = document.getElementById("app");
   const askImg = document.getElementById("askImg");
-  const card = document.getElementById("card");
   const btnArea = document.getElementById("btnArea");
 
   const yesBtn = document.getElementById("yesBtn");
   const noBtn  = document.getElementById("noBtn");
 
-  // Start: set image
   askImg.src = ASK_IMAGE;
 
-  // Password unlock
   function unlock() {
     const entered = pwInput.value.trim();
     if (entered === SECRET_PASSWORD) {
@@ -321,7 +327,6 @@
     if (e.key === "Enter") unlock();
   });
 
-  // Hearts (only after unlock)
   let heartTimer = null;
   function startHearts() {
     if (heartTimer) return;
@@ -349,7 +354,6 @@
     setTimeout(()=> heart.remove(), duration * 1000);
   }
 
-  // YES page
   yesBtn.addEventListener("click", () => {
     document.body.innerHTML = `
       <div class="yayWrap">
@@ -362,16 +366,13 @@
     `;
   });
 
-  // NO behavior: grow yes + change text + random move
   let phraseIndex = 0;
   let yesScale = 1;
 
   noBtn.addEventListener("click", () => {
-    // Grow YES (but keep centered)
     yesScale += 0.12;
     yesBtn.style.transform = `translate(-115px, -50%) scale(${yesScale})`;
 
-    // Change NO text
     if (phraseIndex < noPhrases.length) {
       noBtn.textContent = noPhrases[phraseIndex];
       phraseIndex++;
@@ -382,47 +383,34 @@
     moveNoButtonMoreRandom();
   });
 
-  // More random movement (up/down/side) inside the button area
   function moveNoButtonMoreRandom(){
     const areaRect = btnArea.getBoundingClientRect();
 
-    // Temporarily reset to measure width accurately even after text changes
-    noBtn.style.left = "50%";
-    noBtn.style.top  = "50%";
-    noBtn.style.transform = "translate(15px, -50%)";
-
-    // Measure
     const btnW = noBtn.offsetWidth;
     const btnH = noBtn.offsetHeight;
 
-    // Allow movement around center, including up/down and side
     const padding = 10;
     const minX = padding;
     const maxX = Math.max(padding, areaRect.width - btnW - padding);
     const minY = padding;
     const maxY = Math.max(padding, areaRect.height - btnH - padding);
 
-    // Weighted randomness: mostly near center, sometimes wild
     function randBetween(a,b){ return a + Math.random()*(b-a); }
 
     let x, y;
     if (Math.random() < 0.75) {
-      // near center cluster
       const cx = areaRect.width * 0.5 - btnW * 0.5;
       const cy = areaRect.height * 0.5 - btnH * 0.5;
       x = cx + (Math.random()*160 - 80);
       y = cy + (Math.random()*90  - 45);
     } else {
-      // anywhere in area
       x = randBetween(minX, maxX);
       y = randBetween(minY, maxY);
     }
 
-    // Clamp
     x = Math.min(Math.max(x, minX), maxX);
     y = Math.min(Math.max(y, minY), maxY);
 
-    // Apply absolute inside area
     noBtn.style.left = x + "px";
     noBtn.style.top  = y + "px";
     noBtn.style.transform = "translate(0, 0)";
